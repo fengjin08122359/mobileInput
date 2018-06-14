@@ -254,13 +254,14 @@
           var b = m.samples[1].scrollY-this.height*2;//
           if(b>0){
             m.samples[1].type=2;
-              $("html").css({
-                top:0,
-                width:"100%",
-                height:h
-              });
-              m.samples[0] = m.samples[1];
-              m.samples.pop();
+            $("html").css({
+              top:0,
+              width:"100%",
+              height:h
+            });
+            m.samples[0] = m.samples[1];
+            m.samples.pop();
+            return;
           }else {
             $("html").css({
               top:0,
