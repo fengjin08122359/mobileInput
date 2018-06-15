@@ -8,7 +8,7 @@
 
 var mobileInput = $.mobileInput({inputId: "message"});
 
-$("#message").on('focus', function() {
+$(".footer").on('focus', function() {
 
   mobileInput.startCheck();
 

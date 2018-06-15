@@ -41,7 +41,7 @@ body{
 <script src="../mobileInput.js" type="text/javascript"></script>
 <script>
 var mobileInput = $.mobileInput({inputId: "message"});
-$("#message").on('focus', function() {
+$(".footer").on('focus', function() {
   mobileInput.startCheck();
 }).on('blur', function() {
   mobileInput.end();
