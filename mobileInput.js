@@ -43,6 +43,7 @@
   special: 0,
   adjustHeight:0,
     init: function() {
+      var m = this;
       $("html").css({
         position: "absolute",
         top: 0,
@@ -54,6 +55,14 @@
       this.height = $("html").height();
       this.setAdjustHeight();
       this.scrollTop = document.body.scrollTop;
+      //补丁 特殊点击引发的多次scroll
+      $(window).on("scroll",function(){
+        if (m.onCheck) {
+          $("html,body").height(m.height)
+          m.endScroll = false;
+          m.startCheck();
+        }
+      })
     },
     setAdjustHeight:function(){
       if (OS.mobileSafari && OS.iosVersion < 12) {
