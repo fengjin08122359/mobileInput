@@ -77,6 +77,7 @@
         console.log("iPhone4");
       }
     }
+    console.log(adjustHeight,special);
     return {
       adjustHeight: adjustHeight,
       special: special
@@ -93,6 +94,7 @@
       return false
     },
     goTo: function () {
+      console.log(path);
       if (path[0] == 2) {
         this.path0();
       } else if (path[0] == 1) {
@@ -144,12 +146,14 @@
     init: function () {
       var m = this;
       $(window).on("scroll", function () {
+        console.log("scroll"+m.checkStatus);
         if (m.checkStatus != 2) {
           m.startCheck();
         }
       })
       $(window).on("resize", function () {
         $("html,body").height('100%');
+        console.log("resize"+m.checkStatus);
         if (m.checkStatus != 2) {
           m.startCheck();
         }
