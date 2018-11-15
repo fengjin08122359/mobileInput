@@ -403,6 +403,7 @@
   MOBILEINPUT.prototype.scrollY = scrollTop
   $.mobileInput = function (options) {
     var mobileInput = new MOBILEINPUT(options);
+    mobileInput.init();
     return mobileInput;
   }
 })(window, jQuery);
