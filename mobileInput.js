@@ -101,8 +101,9 @@
         this.path1();
       }
     },
-    saveHeight: function (h) {
+    save: function (h,t) {
       this.height = h;
+      this.top = t;
     },
     path0: function () {
       var m = this;
@@ -132,9 +133,9 @@
         }
         scrollTop(adHeight.special ? (adHeight.special) : 99999);
         $("html").css({
-          top: 0,
           width: "100%",
-          height: (m.height)
+          height: (m.height),
+          top: (m.top)
         });
         inputCheck.success();
       }, 300)
@@ -300,7 +301,7 @@
           } else {
             m.samples[0].type = 3;
             $("html").css({
-              top: 0,
+              top: adHeight.special,
               width: "100%",
               height: (height-adHeight.special)
             });
@@ -308,7 +309,7 @@
         } else {
           m.samples[0].type = 4;
           $("html").css({
-            top: 0,
+            top: adHeight.special,
             width: "100%",
             height: height-adHeight.special
           });
@@ -322,7 +323,7 @@
         path[2] = 3
         if (first.scrollY == second.scrollY && first.height == second.height && first.scHeight == second.scHeight) {
           path[2] = 0
-          historyPath.saveHeight($("html").height());
+          historyPath.save($("html").height(),$("html").css("top"));
           m.success();
           return;
         } else if (first.scrollY != second.scrollY) {
@@ -338,7 +339,7 @@
             });
           } else {
             $("html").css({
-              top: 0,
+              top: adHeight.special,
               width: "100%",
               height: height-adHeight.special
             })
@@ -349,16 +350,15 @@
           if (first.type == 3) {
             path[2] = 2
             $("html").css({
-              top: 0,
               width: "100%",
               height: (second.height)
             });
           }
-          historyPath.saveHeight(second.height);
+          historyPath.save(second.height,$("html").css("top"));
           m.success();
           return;
         } else {
-          historyPath.saveHeight($("html").height());
+          historyPath.save($("html").height(),$("html").css("top"));
           m.success();
           return;
         }
