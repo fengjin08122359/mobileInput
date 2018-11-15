@@ -39,7 +39,7 @@
 
   var scrollTop = function (top) {
     if (typeof top === "undefined") {
-      return $(window).scrollTop()
+      return (document.documentElement.scrollTop + document.body.scrollTop) || $(window).scrollTop()
     } else {
       $(window).scrollTop(top)
       return $(window).scrollTop()
