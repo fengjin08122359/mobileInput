@@ -133,9 +133,9 @@
         }
         scrollTop(adHeight.special ? (adHeight.special) : 99999);
         $("html").css({
+          top: 0,
           width: "100%",
-          height: (m.height),
-          top: (m.top)
+          height: (m.height)
         });
         inputCheck.success();
       }, 300)
@@ -164,7 +164,7 @@
       var m = this;
       if (m.checkStatus != 0) {
         m.checkStatus = 0;
-        if (!historyPath.can()) {
+        // if (!historyPath.can()) {
           if (OS.ios) {
             path[0] = 1
             m.checkIphone();
@@ -172,9 +172,9 @@
             path[0] = 2
             m.checkNotIphone();
           }
-        } else {
-          historyPath.goTo();
-        }
+        // } else {
+        //   historyPath.goTo();
+        // }
       }
     },
     success: function () {
@@ -301,17 +301,17 @@
           } else {
             m.samples[0].type = 3;
             $("html").css({
-              top: adHeight.special,
+              top: 0,
               width: "100%",
-              height: (height-adHeight.special)
+              height: (height)
             });
           }
         } else {
           m.samples[0].type = 4;
           $("html").css({
-            top: adHeight.special,
+            top: 0,
             width: "100%",
-            height: height-adHeight.special
+            height: height
           });
           scrollTop(0);
         }
@@ -339,9 +339,9 @@
             });
           } else {
             $("html").css({
-              top: adHeight.special,
+              top: 0,
               width: "100%",
-              height: height-adHeight.special
+              height: height
             })
           }
           path[2] = 1
@@ -350,6 +350,7 @@
           if (first.type == 3) {
             path[2] = 2
             $("html").css({
+              top: 0,
               width: "100%",
               height: (second.height)
             });
