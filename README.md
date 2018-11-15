@@ -17,3 +17,7 @@ $(".footer").on('focus', function() {
   mobileInput.end();
 
 });
+
+//to-do-list
+
+iphone6 微信无法适配
