@@ -11,9 +11,10 @@
 * });
 * Licensed under the MIT license
 */
+(function (window, $, undefined) {
+  var path = [];
 
-(function(window, $, undefined) {
-  var OS= (function(navigator, userAgent, platform, appVersion){
+  var OS = (function (navigator, userAgent, platform, appVersion) {
     var detect = {}
     detect.webkit = userAgent.match(/WebKit\/([\d.]+)/) ? true : false
     detect.ipod = /iPod/i.test(platform) || userAgent.match(/(iPod).*OS\s([\d_]+)/) ? true : false
@@ -26,325 +27,378 @@
     if (detect.ios) detect.iosVersion = parseFloat(appVersion.slice(appVersion.indexOf("Version/") + 8)) || -1
     return detect
   })(navigator, navigator.userAgent, navigator.platform, navigator.appVersion || navigator.userAgent);
-  var MOBILEINPUT = function(options) {
-    this.defaults = {
-        compantPk: "",
-        codeKey: "",
-        type: "",
-        inputId: "message"
-      },
-      this.options = $.extend({}, this.defaults, options);
+  $("html").css({
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%"
+  });
+  var width = $("html").width();
+  var height = $("html").height();
+
+  var scrollTop = function (top) {
+    if (typeof top === "undefined") {
+      return $(window).scrollTop()
+    } else {
+      $(window).scrollTop(top)
+      return $(window).scrollTop()
+    }
   }
-  MOBILEINPUT.prototype = {
-  width:0,
-  height:0,
-  checkInterval:null,
-  onCheck:false,
-  special: 0,
-  adjustHeight:0,
-    init: function() {
+
+  var adHeight = (function () {
+    var adjustHeight = 0;
+    var special = 0;
+    if (OS.ios && OS.iosVersion <= 12) {
+      adjustHeight = 40;
+      if (screen.height == 812 && screen.width == 375) {
+        console.log("苹果X");
+      } else if (screen.height == 736 && screen.width == 414) {
+        if (width > 365 && width < 385) {
+          adjustHeight = 40;
+          special = 288
+        }
+        if (width > 404 && width < 424) {
+          adjustHeight = 40;
+          special = 303
+        }
+      } else if (screen.height == 667 && screen.width == 375) {
+        if (width > 365 && width < 385) {
+          adjustHeight = 40;
+          special = 288
+        }
+        if (width > 404 && width < 424) {
+          adjustHeight = 40;
+          special = 303
+        }
+      } else if (screen.height == 568 && screen.width == 320) {
+        console.log("iPhone5");
+      } else {
+        console.log("iPhone4");
+      }
+    }
+    return {
+      adjustHeight: adjustHeight,
+      special: special
+    }
+  })()
+
+  var historyPath = {
+    can: function () {
+      if (path.length == 1 && path[0] == 2) {
+        return true;
+      } else if (path.length == 3 && path[0] == 1 && this.height) {
+        return true;
+      }
+      return false
+    },
+    goTo: function () {
+      if (path[0] == 2) {
+        this.path0();
+      } else if (path[0] == 1) {
+        this.path1();
+      }
+    },
+    saveHeight: function (h) {
+      this.height = h;
+    },
+    path0: function () {
       var m = this;
-      $("html").css({
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width:"100%",
-        height: "100%"
-      });
-      this.width = $("html").width();
-      this.height = $("html").height();
-      this.setAdjustHeight();
-      this.scrollTop = document.body.scrollTop;
-      //补丁 特殊点击引发的多次scroll
-      $(window).on("scroll",function(){
-        if (m.onCheck) {
-          $("html,body").height(m.height)
-          m.endScroll = false;
+      if (scrollTop() < 100) {
+        scrollTop(99999)
+      }
+      setTimeout(function () {
+        if (scrollTop() < 100) {
+          scrollTop(99999)
+        }
+        if (document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
+          window.setTimeout(function () {
+            document.activeElement.scrollIntoViewIfNeeded();
+          }, 0);
+        }
+        inputCheck.success();
+      }, 500);
+    },
+    path1: function () {
+      var m = this;
+      console.log("historyPath path1" + m.height);
+      setTimeout(function () {
+        if (document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
+          window.setTimeout(function () {
+            document.activeElement.scrollIntoViewIfNeeded();
+          }, 0);
+        }
+        scrollTop(adHeight.special ? (adHeight.special) : 99999);
+        $("html").css({
+          top: 0,
+          width: "100%",
+          height: (m.height)
+        });
+        inputCheck.success();
+      }, 300)
+    }
+  }
+
+  var inputCheck = {
+    checkStatus: 1,
+    init: function () {
+      var m = this;
+      $(window).on("scroll", function () {
+        if (m.checkStatus != 2) {
+          m.startCheck();
+        }
+      })
+      $(window).on("resize", function () {
+        $("html,body").height('100%');
+        if (m.checkStatus != 2) {
           m.startCheck();
         }
       })
     },
-    setAdjustHeight:function(){
-      if (OS.mobileSafari && OS.iosVersion < 12) {
-        this.adjustHeight = 40;
-        if(screen.height == 812 && screen.width == 375){
-          console.log("苹果X");
-        }else if(screen.height == 736 && screen.width == 414){
-          if (this.width > 365 && this.width < 385) {
-              this.adjustHeight = 0;
-              this.special = 288
+    startCheck: function () {
+      var m = this;
+      if (m.checkStatus != 0) {
+        m.checkStatus = 0;
+        if (!historyPath.can()) {
+          if (OS.ios) {
+            path[0] = 1
+            m.checkIphone();
+          } else {
+            path[0] = 2
+            m.checkNotIphone();
           }
-          if (this.width > 404 && this.width < 424) {
-            this.adjustHeight = 0;
-            this.special = 303
-          }
-        }else if(screen.height == 667 && screen.width == 375){
-          if (this.width > 365 && this.width < 385) {
-            this.adjustHeight = 0;
-            this.special = 288
-          }
-          if (this.width > 404 && this.width < 424) {
-            this.adjustHeight = 0;
-            this.special = 303
-          }
-        }else if(screen.height == 568 && screen.width == 320){
-            console.log("iPhone5");
-        }else{
-            console.log("iPhone4");
+        } else {
+          historyPath.goTo();
         }
       }
     },
-    startCheck:function(){
-      var m = this;
-      m.onCheck = true;
-      if(navigator.userAgent.indexOf("iPhone")> -1   ){
-        m.checkIphone();
-      }else{
-        m.checkNotIphone();
-      }
+    success: function () {
+      this.checkStatus = 1;
+      $("body").height($("html").height() - adHeight.adjustHeight);
     },
-    checkIphone:function(){
+    end: function () {
       var m = this;
-      if(m.checkInterval){
-        clearInterval(m.checkInterval);
-      }
-      m.scrollToBottom();
-        m.checkInterval = setInterval(function(){
-           m.checkIphoneFun();
-        },300)
-    },
-    checkNotIphone:function(){
-      var m = this;
-      setTimeout(function() {
-        if (window.scrollY < 100) {
-           window.scrollTo(0, 99999);
+      m.checkStatus = 2;
+      setTimeout(function () {
+        console.log('end' + m.checkStatus)
+        if (m.checkStatus != 0) {
+          if (m.checkTimeout) {
+            clearTimeout(m.checkTimeout);
+          }
+          $("html").css({
+            position: "absolute",
+            top: "0px",
+            left: "0px",
+            width: "100%"
+          });
+          console.log('end');
+          $("html,body").height('100%');
         }
-        m.scrollToBottom();
-        setTimeout(function() {
-            if (window.scrollY < 100) {
-                window.scrollTo(0, 99999);
-            }
-            m.checkNotIphoneFun();
-        }, 100);
+      }, 100);
+    },
+    checkIphone: function () {
+      var m = this;
+      if (m.checkTimeout) {
+        clearTimeout(m.checkTimeout);
+      }
+      m.checkTimeout = setTimeout(function () {
+        m.checkIphoneFun();
+      }, 300)
+    },
+    checkNotIphone: function () {
+      var m = this;
+      if (m.checkTimeout) {
+        clearTimeout(m.checkTimeout);
+      }
+      if (scrollTop() < 100) {
+        scrollTop(99999)
+      }
+      m.checkTimeout = setTimeout(function () {
+        if (scrollTop() < 100) {
+          scrollTop(99999)
+        }
+        m.checkNotIphoneFun();
       }, 500);
     },
-    checkNotIphoneFun:function() {
+    samples: [],
+    checkIphoneFun: function () {
       var m = this;
-      if(m.endScroll){
-        return;
+      if (document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
+        window.setTimeout(function () {
+          document.activeElement.scrollIntoViewIfNeeded();
+        }, 0);
       }
-      if(this.scrollY()<document.body.scrollHeight && document.documentElement.scrollTop!=0){
-        this.checkIphone()
-      }else if(!(navigator.userAgent.indexOf("iPhone") > -1 && $("body").width()==320) ){//iphone5例外
-        if (window.scrollY < 100) {
-            window.scrollTo(0, 99999);
-        }
-        if(document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
-          window.setTimeout(function() {
-             document.activeElement.scrollIntoViewIfNeeded();
-          },0);
-        }
-        m.success();
+      if (m.checkTimeout) {
+        clearTimeout(m.checkTimeout);
       }
-    },
-    checkIphoneFunV3:function(){
-      var m = this;
-      console.warn("endScroll"+m.endScroll)
-      if(m.endScroll){
-        if(m.checkInterval){
-          clearInterval(m.checkInterval);
-        }
-        return;
-      }
-      m.samples= [];
+      m.samples = [];
       m.getSample();
     },
-    samples:[],
-    getSample:function(){
+    checkNotIphoneFun: function () {
       var m = this;
-      if(m.endScroll){
-        if(m.checkInterval){
-          clearInterval(m.checkInterval);
+      if (scrollTop() < document.body.scrollHeight && document.documentElement.scrollTop != 0) {
+        path[0] = 1
+        this.checkIphone()
+      } else if (!($("body").width() == 320)) { //iphone5例外
+        if (scrollTop() < 100) {
+          scrollTop(99999)
         }
-        return;
-      }
-      if(document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
-        window.setTimeout(function() {
-          document.activeElement.scrollIntoViewIfNeeded();
-        },0);
-      }
-      
-      if (this.special && m.samples.length == 0) {
-        console.warn("special");
-        $(window).scrollTop(this.special);
-      }
-      if(m.checkInterval){
-        clearInterval(m.checkInterval);
-      }
-      
-      var scscrollHeight = document.body.scrollHeight;
-      var height = $("html").height();
-      var scscrollY = this.scrollY();
-      m.samples.push({
-        scHeight:scscrollHeight,
-        scrollY:scscrollY,
-        height:height
-      });
-      m.changeHeight();
-      if(m.samples.length==1){
-        this.sampleTimeout = window.setTimeout(function() {
-          if (m.onCheck == true) {
-            if (window.scrollY < 100) {
-              var keyboardHeight = m.scrollY() || (m.height - top.innerHeight)
-              console.warn("keyboardHeight"+keyboardHeight);
-              if (m.special && keyboardHeight != m.special) {
-                $(window).scrollTop(m.special);
-                window.scrollTo(0, keyboardHeight || 99999);
-              }else{
-                window.scrollTo(0, keyboardHeight || 99999);
-              }
-            }
-            m.getSample();
-          }else{
-            m.end();
-          }
-        },500);
-      }
-    },
-    changeHeight:function(){
-      var m = this;
-      console.log(JSON.stringify(m.samples));
-      if(m.samples.length==1){
-        var a = Math.abs(m.samples[0].scHeight-this.height);//
-          var b = m.samples[0].scrollY-this.height*2;//
-          var c = m.samples[0].height-this.height;
-          var ppheight = m.samples[0].scHeight-m.samples[0].scrollY ;
-        var sctop = -Math.abs(m.samples[0].scrollY);
-        var h = Math.min(ppheight,this.height/2);
-        h = Math.max(h,this.height/2);
-        h = parseInt(h);
-        if(c<-100){//高度不等
-          m.samples[0].type=1;
-        }else if(a<10){//高度近似
-            if(b>0){
-              m.samples[0].type=2;
-              $("html").css({
-                top:0,
-                width:"100%",
-                height:h
-              });
-            }else{
-              m.samples[0].type=3;
-              $("html").css({
-                top:0,
-                width:"100%",
-                height:(this.height)
-              });
-              //window.scrollTo(0, m.samples[0].scrollY);
-            }
-          }else{
-            m.samples[0].type=4;
-            $("html").css({
-            top:0,
-            width:"100%",
-            height:this.height
-          });
-            document.body.scrollTop = 0;
-          }
-      }else if(m.samples.length==2){
-        var ppheight = m.samples[1].scHeight-m.samples[1].scrollY ;
-        var sctop = -Math.abs(m.samples[1].scrollY);
-        var h = Math.min(ppheight,this.height/2);
-        h = Math.max(h,this.height/2);
-        h = parseInt(h);
-        if(m.samples[0].scrollY==m.samples[1].scrollY&&m.samples[0].height==m.samples[1].height&&m.samples[0].scHeight==m.samples[1].scHeight){
-
-        }else if(m.samples[0].scrollY!=m.samples[1].scrollY){
-          var b = m.samples[1].scrollY-this.height*2;//
-          if(b>0){
-            m.samples[1].type=2;
-            $("html").css({
-              top:0,
-              width:"100%",
-              height:h
-            });
-            m.samples[0] = m.samples[1];
-            m.samples.pop();
-            return;
-          }else {
-            $("html").css({
-              top:0,
-              width:"100%",
-              height:"100%"
-            })
-            m.samples[0] = m.samples[1];
-            m.samples.pop();
-            return;
-          }
-        }else if(m.samples[0].height!=m.samples[1].height){
-         if (m.samples[0].type==3) {
-           $("html").css({
-             top:0,
-             width:"100%",
-             height:(m.samples[1].height)
-           });
-         }
+        if (document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
+          window.setTimeout(function () {
+            document.activeElement.scrollIntoViewIfNeeded();
+          }, 0);
         }
         m.success();
       }
     },
-    checkIphoneFun: function() {
+    getSample: function () {
       var m = this;
-      console.log(m.endScroll);
-      if(m.endScroll){
-        if(m.checkInterval){
-          clearInterval(m.checkInterval);
-        }
-        return;
+      if (adHeight.special && m.samples.length == 0) {
+        scrollTop(adHeight.special);
       }
-      m.checkIphoneFunV3();
-      return;
-    },
-    success:function(){
-      this.scrollToBottom();
-      this.endScroll = true;
-      $("body").height($("html").height()-this.adjustHeight)
-      $("#"+this.options.inputId).animate({scrollTop:document.getElementById(this.options.inputId).scrollHeight},1000);
-    },
-    end: function() {
-      var m = this;
-      m.onCheck = false;
-      setTimeout(function(){
-        console.warn("onCheck"+m.onCheck)
-        if(!m.onCheck){
-          if(m.checkInterval){
-            clearInterval(m.checkInterval);
+      var scHeight = document.body.scrollHeight;
+      var htmlHeight = $("html").height();
+      var scrollY = scrollTop();
+      m.samples.push({
+        scHeight: scHeight,
+        scrollY: scrollY,
+        height: htmlHeight
+      });
+      m.changeHeight();
+      if (m.samples.length == 1) {
+        m.checkTimeout = setTimeout(function () {
+          if (scrollTop() < 100) {
+            scrollTop(adHeight.special || 99999)
           }
-          m.endScroll = false;
+          m.getSample();
+        }, 500);
+      }
+    },
+    changeHeight: function () {
+      var m = this;
+      console.log(JSON.stringify(m.samples));
+      if (m.samples.length == 1) {
+        var w = m.checkHeight(m.samples[0])
+        var a = w.a
+        var b = w.b
+        var c = w.c;
+        var h = w.h;
+        if (c < -100) {
+          m.samples[0].type = 1;
+        } else if (a < 10) {
+          if (b > 0) {
+            m.samples[0].type = 2;
+            $("html").css({
+              top: 0,
+              width: "100%",
+              height: h
+            });
+          } else {
+            m.samples[0].type = 3;
+            $("html").css({
+              top: 0,
+              width: "100%",
+              height: (height-adHeight.special)
+            });
+          }
+        } else {
+          m.samples[0].type = 4;
           $("html").css({
-                position: "absolute",
-              top: "0px",
-              left: "0px",
-              width: "100%"
+            top: 0,
+            width: "100%",
+            height: height-adHeight.special
           });
-          $("html").animate({height:"100%"},"fast",function(){
-            $("body").height($("html").height())
-          });
-          document.body.scrollTop = m.scrollTop;
-          m.scrollToBottom();
+          scrollTop(0);
         }
-      },100);
+        path[1] = m.samples[0].type;
+        return;
+      } else if (m.samples.length >= 2) {
+        var first = m.samples[0];
+        var second = m.samples[1];
+        path[2] = 3
+        if (first.scrollY == second.scrollY && first.height == second.height && first.scHeight == second.scHeight) {
+          path[2] = 0
+          historyPath.saveHeight($("html").height());
+          m.success();
+          return;
+        } else if (first.scrollY != second.scrollY) {
+          var w = m.checkHeight(second);
+          var b = w.b;
+          var h = w.h;
+          if (b > 0) {
+            second.type = 2;
+            $("html").css({
+              top: 0,
+              width: "100%",
+              height: h
+            });
+          } else {
+            $("html").css({
+              top: 0,
+              width: "100%",
+              height: height-adHeight.special
+            })
+          }
+          path[2] = 1
+          m.samples = [m.samples.pop()];
+        } else if (first.height != second.height) {
+          if (first.type == 3) {
+            path[2] = 2
+            $("html").css({
+              top: 0,
+              width: "100%",
+              height: (second.height)
+            });
+          }
+          historyPath.saveHeight(second.height);
+          m.success();
+          return;
+        } else {
+          historyPath.saveHeight($("html").height());
+          m.success();
+          return;
+        }
+      }
     },
-    scrollY:function(){
-      return document.body.scrollTop + document.documentElement.scrollTop;
+    checkHeight: function (sample) {
+      var a = Math.abs(sample.scHeight - height);
+      var b = sample.scrollY - height * 2;
+      var c = sample.height - height;
+      var d = sample.scHeight - sample.scrollY;
+      var h = Math.min(d, height / 2);
+      h = parseInt(Math.max(h, height / 2));
+      return {
+        a: a,
+        b: b,
+        c: c,
+        h: h,
+      }
     },
-    scrollToBottom:function () {
-      document.getElementById(this.options.inputId).scrollTop = document.getElementById(this.options.inputId).scrollHeight; // 滚动条置底
+    focusAfterInsert: function () {
+      var m = this;
+      var continueInsert = (height != $("html").height() || scrollTop() != 0)
+      if (continueInsert) {
+        m.checkStatus = 0;
+        setTimeout(function () {
+          m.checkStatus = 1;
+        }, 200)
+      }
+      return continueInsert
     }
   }
-  $.mobileInput = function(options) {
+  var MOBILEINPUT = function (options) {
+    this.defaults = {
+        compantPk: "",
+        codeKey: "",
+        type: "",
+      },
+      this.options = $.extend({}, this.defaults, options);
+  }
+  MOBILEINPUT.prototype = inputCheck
+  MOBILEINPUT.prototype.height = height
+  MOBILEINPUT.prototype.scrollY = scrollTop
+  $.mobileInput = function (options) {
     var mobileInput = new MOBILEINPUT(options);
-    mobileInput.init();
     return mobileInput;
   }
 })(window, jQuery);
