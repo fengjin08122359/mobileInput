@@ -200,13 +200,6 @@
       var m = this;
       this.checkStatus = 2;
       console.log("startCheckTime" + new Date().Format("hh:mm:ss"));
-      if (m.special){
-        $("html").css({
-          top: 0,
-          width: "100%",
-          height: height-m.special
-        });
-      }
       this.changeCheck();
     },
     isStatusChange:function(){
