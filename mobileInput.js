@@ -11,6 +11,15 @@
 * });
 * Licensed under the MIT license
 */
+/*!
+思路有问题
+点击后
+直接检测scroll和resize
+一段时间内无反应说明未拉伸
+进行拉伸
+
+同样二次高度检测
+*/
 (function (window, $, undefined) {
   var path = [];
 
@@ -39,7 +48,7 @@
 
   var scrollTop = function (top) {
     if (typeof top === "undefined") {
-      return $(window).scrollTop()
+      return document.documentElement.scrollTop + document.body.scrollTop
     } else {
       $(window).scrollTop(top)
       return $(window).scrollTop()
@@ -258,6 +267,10 @@
     samples: [],
     checkIphoneFun: function () {
       var m = this;
+      if (m.isStatusChange()) {
+        m.success();
+        return;
+      }
       if (document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
         window.setTimeout(function () {
           document.activeElement.scrollIntoViewIfNeeded();
@@ -294,8 +307,11 @@
         height: htmlHeight
       });
       m.changeHeight();
-      if (m.samples.length == 1) {
+      if (m.isStatusChange()) {
+        m.success();
+      }else if (m.samples.length == 1) {
         m.checkTimeout = setTimeout(function () {
+          
           if (scrollTop() < 100 && m.isScorll) {
             var keyboardHeight = scrollTop() || (height - window.innerHeight);
             var sheight = keyboardHeight || 99999;
