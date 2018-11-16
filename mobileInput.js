@@ -170,14 +170,18 @@
       var m = this;
       $(window).on("scroll", function () {
         console.log("scroll");
-        m.changeStatus = 2;
-        m.changeCheck()
+        if (m.checkStatus != 2) {
+          m.changeStatus = 2;
+          m.changeCheck()
+        ]
       })
       $(window).on("resize", function () {
         $("html,body").height('100%');
         console.log("resize");
-        m.changeStatus = 2;
-        m.changeCheck()
+        if (m.checkStatus != 2) {
+          m.changeStatus = 2;
+          m.changeCheck()
+        }
       })
     },
     changeCheck:function(){
@@ -455,3 +459,4 @@
     return mobileInput;
   }
 })(window, jQuery);
+
