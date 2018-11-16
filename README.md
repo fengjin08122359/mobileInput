@@ -20,4 +20,10 @@ $(".footer").on('focus', function() {
 
 //to-do-list
 
-iphone6 微信无法适配
+(x)iphone6 微信无法适配
+
+( )多次滑动不适配iphone6sp
+
+( )点击向上滑动不适配iphone6
+
+( )部分机型发送后重新绑定会出现跳动
