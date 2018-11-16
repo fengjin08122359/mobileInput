@@ -97,7 +97,7 @@
     can: function () {
       if (path.length == 1 && path[0] == 2) {
         return true;
-      } else if (path.length == 3 && path[0] == 1 && this.height) {
+      } else if (path.length == 3 && path[0] == 1 && typeof path[1] != 'undefined' && this.height) {
         return true;
       }
       return false
