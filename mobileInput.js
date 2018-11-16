@@ -176,7 +176,7 @@
         }
       })
       $(window).on("resize", function () {
-        $("html,body").height('100%');
+        $("body").height('auto');
         $("body").css("bottom",0);
         console.log("resize");
         if (m.checkStatus != 2) {
@@ -212,6 +212,7 @@
     isScorll: false,
     checkFun:function(){
       var m = this;
+      $("body").height('auto');
       $("body").css("bottom", adHeight.adjustHeight);
       m.isScorll = false;
       if (!m.isStatusChange() && !m.checkStatus == 2) {
