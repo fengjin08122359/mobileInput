@@ -173,7 +173,7 @@
         if (m.checkStatus != 2) {
           m.changeStatus = 2;
           m.changeCheck()
-        ]
+        }
       })
       $(window).on("resize", function () {
         $("html,body").height('100%');
