@@ -320,8 +320,7 @@
         m.success();
       }else if (m.samples.length == 1) {
         m.checkTimeout = setTimeout(function () {
-          
-          if (scrollTop() < 100 && m.isScorll) {
+          if ((scrollTop() < 100 && m.isScorll) || (scrollTop()==0 && document.body.scrollHeight == $("html").height())) {
             var keyboardHeight = scrollTop() || (height - window.innerHeight);
             var sheight = keyboardHeight || 99999;
             scrollTop(sheight)
@@ -459,4 +458,3 @@
     return mobileInput;
   }
 })(window, jQuery);
-
