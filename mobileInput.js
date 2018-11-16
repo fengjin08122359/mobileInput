@@ -169,11 +169,13 @@
     init: function () {
       var m = this;
       $(window).on("scroll", function () {
+        console.log("scroll");
         m.changeStatus = 2;
         m.changeCheck()
       })
       $(window).on("resize", function () {
         $("html,body").height('100%');
+        console.log("resize");
         m.changeStatus = 2;
         m.changeCheck()
       })
@@ -193,6 +195,7 @@
     startCheck: function () {
       var m = this;
       this.checkStatus = 2;
+      console.log("startCheckTime" + new Date().Format("hh:mm:ss"));
       this.changeCheck();
     },
     isStatusChange:function(){
@@ -209,8 +212,10 @@
         scrollTop(adHeight.special || 99999);
         m.isScorll = true;
       }
+      console.log("m.isScorll" + m.isScorll);
+      console.log("checkFunTime" + new Date().Format("hh:mm:ss"));
       m.checkStatus = 0;
-      if (!historyPath.can()) {
+      // if (!historyPath.can()) {
         if (OS.ios) {
           path[0] = 1
           m.checkIphone();
@@ -218,9 +223,9 @@
           path[0] = 2
           m.checkNotIphone();
         }
-      } else {
-        historyPath.goTo();
-      }
+      // } else {
+      //   historyPath.goTo();
+      // }
     },
     success: function () {
       this.checkStatus = 1;
@@ -450,4 +455,3 @@
     return mobileInput;
   }
 })(window, jQuery);
-
