@@ -39,7 +39,7 @@
 
   var scrollTop = function (top) {
     if (typeof top === "undefined") {
-      return (document.documentElement.scrollTop + document.body.scrollTop) || $(window).scrollTop()
+      return $(window).scrollTop()
     } else {
       $(window).scrollTop(top)
       return $(window).scrollTop()
@@ -141,40 +141,76 @@
       }, 300)
     }
   }
-
+  /*0.判断机型
+    1.处于输入状态
+    2.监听scroll,resize事件
+    3.是否未发生滑滚
+    4.是否存在事件触发
+    5.发生事件||发生滑滚=>已经滑动
+    6.!发生事件&&!发生滑滚=>未滑动=>需要主动触发滑动事件
+    7.滑动后判断是否需要二次调整(滑动出现异常)
+    8.记录不同的情况
+    9.记录当前滑动的状态
+    10.需要回复原始状态的情况
+  */
   var inputCheck = {
     checkStatus: 1,
+    changeStatus: 1,
+    changeCheckTimeout:null,
     init: function () {
       var m = this;
       $(window).on("scroll", function () {
-        console.log("scroll"+m.checkStatus);
-        if (m.checkStatus != 2) {
-          m.startCheck();
-        }
+        m.changeStatus = 2;
+        m.changeCheck()
       })
       $(window).on("resize", function () {
         $("html,body").height('100%');
-        console.log("resize"+m.checkStatus);
-        if (m.checkStatus != 2) {
-          m.startCheck();
-        }
+        m.changeStatus = 2;
+        m.changeCheck()
       })
+    },
+    changeCheck:function(){
+      var m = this;
+      if (this.changeCheckTimeout) {
+        clearTimeout(this.changeCheckTimeout);
+      }
+      this.changeCheckTimeout = setTimeout(function(){
+        if (m.checkStatus != 0) {
+          m.checkFun()
+          m.changeStatus = 1;
+        }
+      },200);
     },
     startCheck: function () {
       var m = this;
-      if (m.checkStatus != 0) {
-        m.checkStatus = 0;
-        // if (!historyPath.can()) {
-          if (OS.ios) {
-            path[0] = 1
-            m.checkIphone();
-          } else {
-            path[0] = 2
-            m.checkNotIphone();
-          }
-        // } else {
-        //   historyPath.goTo();
-        // }
+      this.checkStatus = 2;
+      this.changeCheck();
+    },
+    isStatusChange:function(){
+      var scHeight = document.body.scrollHeight;
+      var htmlHeight = $("html").height();
+      var scrollY = scrollTop();
+      return !(scHeight == htmlHeight && (scrollY>scHeight || scrollY==0))
+    },
+    isScorll: false,
+    checkFun:function(){
+      var m = this;
+      m.isScorll = false;
+      if (!m.isStatusChange() && !m.checkStatus == 2) {
+        scrollTop(adHeight.special || 99999);
+        m.isScorll = true;
+      }
+      m.checkStatus = 0;
+      if (!historyPath.can()) {
+        if (OS.ios) {
+          path[0] = 1
+          m.checkIphone();
+        } else {
+          path[0] = 2
+          m.checkNotIphone();
+        }
+      } else {
+        historyPath.goTo();
       }
     },
     success: function () {
@@ -215,13 +251,7 @@
       if (m.checkTimeout) {
         clearTimeout(m.checkTimeout);
       }
-      if (scrollTop() < 100) {
-        scrollTop(99999)
-      }
       m.checkTimeout = setTimeout(function () {
-        if (scrollTop() < 100) {
-          scrollTop(99999)
-        }
         m.checkNotIphoneFun();
       }, 500);
     },
@@ -245,9 +275,6 @@
         path[0] = 1
         this.checkIphone()
       } else if (!($("body").width() == 320)) { //iphone5例外
-        if (scrollTop() < 100) {
-          scrollTop(99999)
-        }
         if (document.activeElement && document.activeElement.scrollIntoViewIfNeeded) {
           window.setTimeout(function () {
             document.activeElement.scrollIntoViewIfNeeded();
@@ -258,9 +285,6 @@
     },
     getSample: function () {
       var m = this;
-      if (adHeight.special && m.samples.length == 0) {
-        scrollTop(adHeight.special);
-      }
       var scHeight = document.body.scrollHeight;
       var htmlHeight = $("html").height();
       var scrollY = scrollTop();
@@ -272,8 +296,10 @@
       m.changeHeight();
       if (m.samples.length == 1) {
         m.checkTimeout = setTimeout(function () {
-          if (scrollTop() < 100) {
-            scrollTop(adHeight.special || 99999)
+          if (scrollTop() < 100 && m.isScorll) {
+            var keyboardHeight = scrollTop() || (height - window.innerHeight);
+            var sheight = keyboardHeight || 99999;
+            scrollTop(sheight)
           }
           m.getSample();
         }, 500);
@@ -408,3 +434,4 @@
     return mobileInput;
   }
 })(window, jQuery);
+
