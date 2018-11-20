@@ -209,9 +209,19 @@
       var scrollY = scrollTop();
       return !(scHeight == htmlHeight && (scrollY>scHeight || scrollY==0))
     },
+    shouldOver:function(){
+       var scHeight = document.body.scrollHeight;
+       var htmlHeight = $("html").height();
+       var scrollY = scrollTop();
+       return (scHeight == htmlHeight &&  scrollY==0) 
+    },
     isScorll: false,
     checkFun:function(){
       var m = this;
+      if (m.shouldOver()) {
+         m.end();
+         return;
+      }
       $("body").height('auto');
       $("body").css("bottom", adHeight.adjustHeight);
       m.isScorll = false;
