@@ -22,8 +22,10 @@ $(".footer").on('focus', function() {
 
 (x)iphone6 微信无法适配
 
-( )多次滑动不适配iphone6sp
+(x)多次滑动不适配iphone6sp
 
-( )点击向上滑动不适配iphone6
+(x)点击向上滑动不适配iphone6
 
-( )部分机型发送后重新绑定会出现跳动
+(x)部分机型发送后重新绑定会出现跳动
+
+( )存在个别安卓机型使用的默认浏览器,在软键盘唤起时不触发resize或scroll事件,需要提醒
