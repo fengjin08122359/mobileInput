@@ -1,0 +1,25 @@
+{
+  "name": "mobileinput",
+  "version": "1.0.0",
+  "description": "1.该插件针对于手机端输入框点击后输入法唤起的适配",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fengjin08122359/mobileInput.git"
+  },
+  "author": "mike",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fengjin08122359/mobileInput/issues"
+  },
+  "homepage": "https://github.com/fengjin08122359/mobileInput#readme",
+  "dependencies": {
+    "licia": "^1.2.0"
+  },
+  "devDependencies": {
+    "licia": "^1.3.0"
+  }
+}
