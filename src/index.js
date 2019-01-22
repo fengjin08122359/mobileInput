@@ -1,5 +1,6 @@
-var root = require('licia/root');
-var $ = require('licia/$');
+import root from 'licia/root'
+import $ from 'licia/$' 
+
 var path = [];
 var OS = (function (navigator, userAgent, platform, appVersion) {
   var detect = {}
@@ -14,6 +15,7 @@ var OS = (function (navigator, userAgent, platform, appVersion) {
   if (detect.ios) detect.iosVersion = parseFloat(appVersion.slice(appVersion.indexOf("Version/") + 8)) || -1
   return detect
 })(navigator, navigator.userAgent, navigator.platform, navigator.appVersion || navigator.userAgent);
+var el = document.documentElement
 $("html").css({
   position: "absolute",
   top: 0,
@@ -29,12 +31,12 @@ $("body").css({
   bottom: 0,
   overflow: 'hidden'
 });
-var width = $("html").css('width');
-var height = $("html").css('height');
+var width = el.clientWidth;
+var height = el.clientHeight;
 
 var scrollTop = function (top) {
   if (typeof top === "undefined") {
-    return document.documentElement.scrollTop + document.body.scrollTop
+    return document.documentElement.scrollTop || document.body.scrollTop;
   } else {
     window.scrollTo(0, top)
   }
@@ -168,14 +170,14 @@ var inputCheck = {
     }, 2000);
   },
   isWindowChange: function () {
-    var htmlHeight = $("html").css('height');
+    var htmlHeight = el.clientHeight;
     var isresize = htmlHeight != height
     var isscroll = scrollTop() != 0;
-    
+    console.log(htmlHeight, isresize, isscroll);
     return isresize || isscroll
   },
   isInReliableArea: function () {
-    var htmlHeight = $("html").css('height');
+    var htmlHeight = el.clientHeight;
     var isresize = htmlHeight !== height
     var scrollY = scrollTop();
     var reliableScroll = !(adHeight.special && adHeight.special > scrollY);
@@ -216,7 +218,7 @@ var inputCheck = {
   },
   success: function () {
     STATUS.changeStatus(STATUS.checkSuccess);
-    this.savedHeight = $('html').css('height');
+    this.savedHeight = el.clientHeight;
   },
   end: function () {
     var m = this;
@@ -294,7 +296,7 @@ var inputCheck = {
   getSample: function () {
     var m = this;
     var scHeight = document.body.scrollHeight;
-    var htmlHeight = $("html").css('height');
+    var htmlHeight = el.clientHeight;
     var scrollY = scrollTop();
     m.samples.push({
       scHeight: scHeight,
@@ -306,7 +308,7 @@ var inputCheck = {
       m.success();
     } else if (m.samples.length == 1) {
       m.checkTimeout = setTimeout(function () {
-        if ((scrollTop() < 100 && m.isScorll) || (scrollTop() == 0 && document.body.scrollHeight == $("html").css('height'))) {
+        if ((scrollTop() < 100 && m.isScorll) || (scrollTop() == 0 && document.body.scrollHeight == el.clientHeight)) {
           var keyboardHeight = scrollTop() || (height - window.innerHeight);
           var sheight = keyboardHeight || 99999;
           scrollTop(sheight)
@@ -413,7 +415,7 @@ var inputCheck = {
   },
   focusAfterInsert: function () {
     var m = this;
-    var continueInsert = (height != $("html").css('height') || scrollTop() != 0)
+    var continueInsert = (height != el.clientHeight || scrollTop() != 0)
     if (continueInsert) {
       STATUS.changeStatus(STATUS.focusAfterInsert);
     }
@@ -426,4 +428,4 @@ var inputCheck = {
   }
 }
 root.mobileInput = inputCheck;
-module.exports = mobileInput;
+export default mobileInput;
